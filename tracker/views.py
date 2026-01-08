@@ -8,7 +8,7 @@ from django.contrib.auth import authenticate,login as auth_login
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny,IsAdminUser
 from rest_framework.response import Response
-from rest_framework.generics import ListAPIView,ListCreateAPIView
+from rest_framework.generics import ListAPIView,ListCreateAPIView,RetrieveAPIView
 from .serializers import EarnedSerializer,SpentSerializer,UserSerializer
 
 
@@ -73,7 +73,8 @@ def user_login(request):
         "email": user.email
     })
 
-
+class UserSummary(RetrieveAPIView):
+    
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def dashboard(request):
