@@ -9,7 +9,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny,IsAdminUser
 from rest_framework.response import Response
 from rest_framework.generics import ListAPIView,ListCreateAPIView,RetrieveAPIView
-from .serializers import EarnedSerializer,SpentSerializer,UserSerializer
+from .serializers import EarnedSerializer,SpentSerializer,UserSerializer,UserDetailsSerializer
 
 
 
@@ -74,17 +74,13 @@ def user_login(request):
     })
 
 class UserSummary(RetrieveAPIView):
-    
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def dashboard(request):
-    user=request.user
-    return Response({
-        'email':user.email,
-        'balance':user.balance,
-        'earned': EarnedSerializer(user.earned.all(), many=True).data,
-        'Spent':SpentSerializer(user.spent.all(),many=True).data,
-    })
+    serializer_class=UserDetailsSerializer
+    permission_classes=[IsAuthenticated]
+    authentication_classes=[SessionAuthentication]
+    def get_object(self):
+        return self.request.user
+
+
 
 
 class Addspent(ListCreateAPIView):
