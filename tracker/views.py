@@ -8,8 +8,8 @@ from django.contrib.auth import authenticate,login as auth_login
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny,IsAdminUser
 from rest_framework.response import Response
-from rest_framework.generics import ListAPIView,ListCreateAPIView,RetrieveAPIView
-from .serializers import EarnedSerializer,SpentSerializer,UserSerializer,UserDetailsSerializer
+from rest_framework.generics import ListAPIView,ListCreateAPIView,RetrieveAPIView,CreateAPIView
+from .serializers import EarnedSerializer,SpentSerializer,UserSerializer,UserDetailsSerializer,RegisterSerializer
 
 
 
@@ -21,30 +21,14 @@ class UserList(ListAPIView):
     queryset=User.objects.all()
     serializer_class=UserSerializer
     permission_classes=[IsAdminUser]
+    
+@method_decorator(csrf_exempt, name='dispatch')
+class AddUser(CreateAPIView):
+    serializer_class=RegisterSerializer
+    permission_classes=[AllowAny]
 
 
 
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def register(request):
-    if request.method!='POST':
-        return JsonResponse({"error": "POST method required"}, status=405)
-    data=json.loads(request.body)
-    email=data.get('email')
-    password=data.get("password")
-    
-    if not all([email,password]):
-        return JsonResponse({"error":"All required fields should be filled"},status=400)
-    
-    if User.objects.filter(email=email).exists():
-        return JsonResponse({"error":"user with email already exisits"},status=400)
-    
-    user=User.objects.create_user(
-        email=email,
-        password=password
-    )
-    return JsonResponse({"success":"user created successfully",
-                         "email":user.email},status=201)
 @csrf_exempt
 def user_login(request):
     if request.method != "POST":

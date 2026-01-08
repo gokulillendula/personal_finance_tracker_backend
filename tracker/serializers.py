@@ -36,4 +36,15 @@ class RegisterSerializer(serializers.ModelSerializer):
     )
     class Meta:
         model=User
-        firlds=['email','password']
+        fields=['email','password']
+    def create(self, validated_data):
+        # Extract password
+        password = validated_data.pop('password')
+        
+        # Create user with proper password hashing
+        user = User.objects.create_user(
+            email=validated_data['email'],
+            password=password  # Django automatically hashes this
+        )
+        
+        return user
