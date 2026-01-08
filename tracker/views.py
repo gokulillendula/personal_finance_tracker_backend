@@ -17,16 +17,16 @@ def greet(request):
     return HttpResponse("Hello, welcome to the Finance Tracker!")
 
 
-class UserList(ListAPIView):
+
+
+class Users(ListCreateAPIView):
     queryset=User.objects.all()
     serializer_class=UserSerializer
-    permission_classes=[IsAdminUser]
-    
-@method_decorator(csrf_exempt, name='dispatch')
-class AddUser(CreateAPIView):
-    serializer_class=RegisterSerializer
-    permission_classes=[AllowAny]
-
+    def get_permissions(self):
+        if self.request.method=='GET':
+            self.permission_classes=[IsAdminUser]
+        self.permission_classes=[AllowAny]
+        return super().get_permissions()
 
 
 @csrf_exempt
@@ -57,6 +57,9 @@ def user_login(request):
         "email": user.email
     })
 
+
+
+
 class UserSummary(RetrieveAPIView):
     serializer_class=UserDetailsSerializer
     permission_classes=[IsAuthenticated]
@@ -67,7 +70,7 @@ class UserSummary(RetrieveAPIView):
 
 
 
-class Addspent(ListCreateAPIView):
+class spent(ListCreateAPIView):
     serializer_class=SpentSerializer
     permission_classes=[IsAuthenticated]
     authentication_classes = [SessionAuthentication]
@@ -76,7 +79,7 @@ class Addspent(ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
-class AddEarned(ListCreateAPIView):
+class Earned(ListCreateAPIView):
     serializer_class=EarnedSerializer
     permission_classes=[IsAuthenticated]
     authentication_classes=[SessionAuthentication]

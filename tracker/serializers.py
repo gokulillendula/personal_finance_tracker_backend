@@ -18,9 +18,21 @@ class InvestmentSerializer(serializers.ModelSerializer):
         read_only_fields=['tid','date']
 
 class UserSerializer(serializers.ModelSerializer):
+    password=serializers.CharField(
+        write_only=True,
+        required=True,
+        min_length=8
+    )
     class Meta:
         model=User
-        fields=['email','balance']
+        fields=['email','balance','password']
+    def create(self, validated_data):
+        password=validated_data.pop('password')
+        user=User.objects.create_user(
+            email=validated_data['email'],
+            password=password
+        )
+        return user
 
 class UserDetailsSerializer(serializers.ModelSerializer):
     earned=EarnedSerializer(many=True,read_only=True)
@@ -29,6 +41,7 @@ class UserDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model=User
         fields=['email','balance','earned','spent','investments']
+        
 class RegisterSerializer(serializers.ModelSerializer):
     password=serializers.CharField(
         write_only=True,
